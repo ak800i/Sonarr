@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using NLog;
+using NzbDrone.Core.Configuration;
 using NzbDrone.Core.Parser.Model;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications
@@ -8,10 +9,12 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
     {
         private static readonly Regex ExecutableFileRegex = new Regex(@"\.(exe|lnk)\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+        private readonly IConfigService _configService;
         private readonly Logger _logger;
 
-        public ExecutableFileSpecification(Logger logger)
+        public ExecutableFileSpecification(IConfigService configService, Logger logger)
         {
+            _configService = configService;
             _logger = logger;
         }
 
@@ -20,6 +23,11 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
 
         public virtual DownloadSpecDecision IsSatisfiedBy(RemoteEpisode subject, ReleaseDecisionInformation information)
         {
+            if (!_configService.RejectReleasesWithExecutableFiles)
+            {
+                return DownloadSpecDecision.Accept();
+            }
+
             if (subject.Release == null)
             {
                 return DownloadSpecDecision.Accept();

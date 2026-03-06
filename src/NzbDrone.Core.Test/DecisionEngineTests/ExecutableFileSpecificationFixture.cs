@@ -1,5 +1,6 @@
 using FluentAssertions;
 using NUnit.Framework;
+using NzbDrone.Core.Configuration;
 using NzbDrone.Core.DecisionEngine.Specifications;
 using NzbDrone.Core.Indexers;
 using NzbDrone.Core.Parser.Model;
@@ -23,6 +24,17 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                     DownloadProtocol = DownloadProtocol.Torrent
                 }
             };
+
+            Mocker.GetMock<IConfigService>()
+                .SetupGet(c => c.RejectReleasesWithExecutableFiles)
+                .Returns(true);
+        }
+
+        private void GivenExecutableFileCheckDisabled()
+        {
+            Mocker.GetMock<IConfigService>()
+                .SetupGet(c => c.RejectReleasesWithExecutableFiles)
+                .Returns(false);
         }
 
         [Test]
@@ -35,6 +47,15 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         public void should_return_true_if_release_is_null()
         {
             _remoteEpisode.Release = null;
+            Subject.IsSatisfiedBy(_remoteEpisode, new()).Accepted.Should().BeTrue();
+        }
+
+        [Test]
+        public void should_return_true_when_check_is_disabled()
+        {
+            GivenExecutableFileCheckDisabled();
+
+            _remoteEpisode.Release.Title = "Series.Title.S01E01.HDTV.x264-LOL.exe";
             Subject.IsSatisfiedBy(_remoteEpisode, new()).Accepted.Should().BeTrue();
         }
 
