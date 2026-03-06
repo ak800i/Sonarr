@@ -50,6 +50,10 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.RTorrentTests
             Mocker.GetMock<ITorrentFileInfoReader>()
                   .Setup(s => s.GetHashFromTorrentFile(It.IsAny<byte[]>()))
                   .Returns("CBC2F069FE8BB2F544EAE707D75BCD3DE9DCF951");
+
+            Mocker.GetMock<ITorrentFileInfoReader>()
+                  .Setup(s => s.GetFileNamesFromTorrentFile(It.IsAny<byte[]>()))
+                  .Returns(new List<string> { "Droned.S01E01.Pilot.1080p.WEB-DL-DRONE.mkv" });
         }
 
         protected void GivenSuccessfulDownload()

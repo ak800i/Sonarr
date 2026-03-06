@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using MonoTorrent;
@@ -24,6 +25,7 @@ namespace NzbDrone.Core.Download
     {
         protected readonly IHttpClient _httpClient;
         private readonly IBlocklistService _blocklistService;
+        private readonly IExecutableFileValidator _executableFileValidator;
         protected readonly ITorrentFileInfoReader _torrentFileInfoReader;
 
         protected TorrentClientBase(ITorrentFileInfoReader torrentFileInfoReader,
@@ -33,11 +35,13 @@ namespace NzbDrone.Core.Download
             IRemotePathMappingService remotePathMappingService,
             ILocalizationService localizationService,
             IBlocklistService blocklistService,
+            IExecutableFileValidator executableFileValidator,
             Logger logger)
             : base(configService, diskProvider, remotePathMappingService, logger, localizationService)
         {
             _httpClient = httpClient;
             _blocklistService = blocklistService;
+            _executableFileValidator = executableFileValidator;
             _torrentFileInfoReader = torrentFileInfoReader;
         }
 
@@ -200,6 +204,7 @@ namespace NzbDrone.Core.Download
             var hash = _torrentFileInfoReader.GetHashFromTorrentFile(torrentFile);
 
             EnsureReleaseIsNotBlocklisted(remoteEpisode, indexer, hash);
+            EnsureReleaseDoesNotContainExecutableFiles(remoteEpisode, torrentFile);
 
             var actualHash = AddFromTorrentFile(remoteEpisode, hash, filename, torrentFile);
 
@@ -268,6 +273,25 @@ namespace NzbDrone.Core.Download
                 {
                     throw new ReleaseBlockedException(remoteEpisode.Release, "Release previously added to blocklist");
                 }
+            }
+        }
+
+        private void EnsureReleaseDoesNotContainExecutableFiles(RemoteEpisode remoteEpisode, byte[] torrentFile)
+        {
+            var fileNames = _torrentFileInfoReader.GetFileNamesFromTorrentFile(torrentFile);
+
+            if (_executableFileValidator.ContainsExecutableFiles(fileNames))
+            {
+                var executableFiles = _executableFileValidator.GetExecutableFiles(fileNames);
+                var fileList = string.Join(", ", executableFiles.Take(5));
+
+                if (executableFiles.Count > 5)
+                {
+                    fileList += $" (and {executableFiles.Count - 5} more)";
+                }
+
+                _logger.Warn("Torrent for '{0}' contains executable files: {1}", remoteEpisode.Release.Title, fileList);
+                throw new DownloadClientRejectedReleaseException(remoteEpisode.Release, "Torrent contains executable files: " + fileList);
             }
         }
     }

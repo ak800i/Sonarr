@@ -28,8 +28,9 @@ namespace NzbDrone.Core.Download.Clients.FreeboxDownload
             IRemotePathMappingService remotePathMappingService,
             ILocalizationService localizationService,
             IBlocklistService blocklistService,
+            IExecutableFileValidator executableFileValidator,
             Logger logger)
-            : base(torrentFileInfoReader, httpClient, configService, diskProvider, remotePathMappingService, localizationService, blocklistService, logger)
+            : base(torrentFileInfoReader, httpClient, configService, diskProvider, remotePathMappingService, localizationService, blocklistService, executableFileValidator, logger)
         {
             _proxy = proxy;
         }
