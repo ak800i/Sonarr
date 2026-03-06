@@ -7,7 +7,11 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
 {
     public class ExecutableFileSpecification : IDownloadDecisionEngineSpecification
     {
-        private static readonly Regex ExecutableFileRegex = new Regex(@"\.(exe|lnk)\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        // Match common executable/script file extensions in release titles
+        // Uses word boundary \b to avoid false positives (e.g., "exec" in title)
+        private static readonly Regex ExecutableFileRegex = new Regex(
+            @"\.(exe|lnk|bat|cmd|com|scr|pif|vbs|vbe|js|jse|ws|wsf|wsc|wsh|ps1|ps1xml|ps2|ps2xml|psc1|psc2|msi|msp|mst|jar|hta|cpl|reg|inf|dll)\b",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private readonly IConfigService _configService;
         private readonly Logger _logger;
@@ -35,7 +39,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
 
             if (ExecutableFileRegex.IsMatch(subject.Release.Title))
             {
-                _logger.Debug("Release title contains executable file extensions (.exe or .lnk), rejecting.");
+                _logger.Debug("Release title contains executable file extensions, rejecting.");
                 return DownloadSpecDecision.Reject(DownloadRejectionReason.ExecutableFile, "Release title contains executable file extensions");
             }
 

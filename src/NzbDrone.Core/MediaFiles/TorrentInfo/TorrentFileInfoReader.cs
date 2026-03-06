@@ -43,7 +43,7 @@ namespace NzbDrone.Core.MediaFiles.TorrentInfo
             }
             catch
             {
-                _logger.Trace("Invalid torrent file contents: {0}", Encoding.ASCII.GetString(fileContents));
+                _logger.Trace("Invalid torrent file contents (size: {0} bytes)", fileContents.Length);
                 throw;
             }
         }

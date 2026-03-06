@@ -15,8 +15,11 @@ namespace NzbDrone.Core.Download
 
     public class ExecutableFileValidator : IExecutableFileValidator
     {
-        // Match files ending with .exe or .lnk (case insensitive)
-        private static readonly Regex ExecutableFileRegex = new Regex(@"\.(exe|lnk)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        // Match common executable/script file extensions that could be security risks
+        // Includes: Windows executables, scripts, installers, and shortcuts
+        private static readonly Regex ExecutableFileRegex = new Regex(
+            @"\.(exe|lnk|bat|cmd|com|scr|pif|vbs|vbe|js|jse|ws|wsf|wsc|wsh|ps1|ps1xml|ps2|ps2xml|psc1|psc2|msi|msp|mst|jar|hta|cpl|reg|inf|dll)$",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private readonly IConfigService _configService;
         private readonly Logger _logger;
