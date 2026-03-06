@@ -6,7 +6,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
 {
     public class ExecutableFileSpecification : IDownloadDecisionEngineSpecification
     {
-        private static readonly Regex ExecutableFileRegex = new Regex(@"\.(exe|lnk)(?:\s|$|\.)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex ExecutableFileRegex = new Regex(@"\.(exe|lnk)\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private readonly Logger _logger;
 

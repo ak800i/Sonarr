@@ -43,6 +43,10 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         [TestCase("Series.Name.S01E01.1080p.BluRay.DTS.x264")]
         [TestCase("Series.Title.Complete.Season.1.720p.BluRay")]
         [TestCase("Some.Series.S01E01.Execute.Plan.1080p.WEB")]
+        [TestCase("Series.S01E01.exec.mkv")]
+        [TestCase("Series.S01E01.linked.mkv")]
+        [TestCase("Series.S01E01.executable.mkv")]
+        [TestCase("Series.S01E01.linkage.mkv")]
         public void should_return_true_for_normal_titles(string title)
         {
             _remoteEpisode.Release.Title = title;
