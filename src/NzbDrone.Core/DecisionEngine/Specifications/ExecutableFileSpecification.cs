@@ -35,8 +35,8 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
 
             if (ExecutableFileRegex.IsMatch(subject.Release.Title))
             {
-                _logger.Debug("Release contains executable files (.exe or .lnk), rejecting.");
-                return DownloadSpecDecision.Reject(DownloadRejectionReason.ExecutableFile, "Release contains executable files");
+                _logger.Debug("Release title contains executable file extensions (.exe or .lnk), rejecting.");
+                return DownloadSpecDecision.Reject(DownloadRejectionReason.ExecutableFile, "Release title contains executable file extensions");
             }
 
             return DownloadSpecDecision.Accept();
