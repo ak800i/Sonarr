@@ -59,6 +59,10 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.Blackhole
                 .Setup(c => c.GetHashFromTorrentFile(It.IsAny<byte[]>()))
                 .Returns("myhash");
 
+            Mocker.GetMock<ITorrentFileInfoReader>()
+                .Setup(c => c.GetFileNamesFromTorrentFile(It.IsAny<byte[]>()))
+                .Returns(new List<string> { "Droned.S01E01.Pilot.1080p.WEB-DL-DRONE.mkv" });
+
             Mocker.GetMock<IDiskScanService>().Setup(c => c.FilterPaths(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<bool>()))
                   .Returns<string, IEnumerable<string>, bool>((b, s, c) => s.ToList());
         }

@@ -40,8 +40,9 @@ namespace NzbDrone.Core.Download.Clients.DownloadStation
                                       IRemotePathMappingService remotePathMappingService,
                                       ILocalizationService localizationService,
                                       IBlocklistService blocklistService,
+                                      IExecutableFileValidator executableFileValidator,
                                       Logger logger)
-            : base(torrentFileInfoReader, httpClient, configService, diskProvider, remotePathMappingService, localizationService, blocklistService, logger)
+            : base(torrentFileInfoReader, httpClient, configService, diskProvider, remotePathMappingService, localizationService, blocklistService, executableFileValidator, logger)
         {
             _dsInfoProxy = dsInfoProxy;
             _dsTaskProxySelector = dsTaskProxySelector;

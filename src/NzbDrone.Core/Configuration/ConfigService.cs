@@ -129,6 +129,13 @@ namespace NzbDrone.Core.Configuration
             set { SetValue("MinimumAge", value); }
         }
 
+        public bool RejectReleasesWithExecutableFiles
+        {
+            get { return GetValueBoolean("RejectReleasesWithExecutableFiles", true); }
+
+            set { SetValue("RejectReleasesWithExecutableFiles", value); }
+        }
+
         public ProperDownloadTypes DownloadPropersAndRepacks
         {
             get { return GetValueEnum("DownloadPropersAndRepacks", ProperDownloadTypes.PreferAndUpgrade); }

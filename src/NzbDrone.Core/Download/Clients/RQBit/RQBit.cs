@@ -31,8 +31,9 @@ namespace NzbDrone.Core.Download.Clients.RQBit
             IDownloadSeedConfigProvider downloadSeedConfigProvider,
             ILocalizationService localizationService,
             IBlocklistService blocklistService,
+            IExecutableFileValidator executableFileValidator,
             Logger logger)
-            : base(torrentFileInfoReader, httpClient, configService, diskProvider, remotePathMappingService, localizationService, blocklistService, logger)
+            : base(torrentFileInfoReader, httpClient, configService, diskProvider, remotePathMappingService, localizationService, blocklistService, executableFileValidator, logger)
         {
             _proxy = proxy;
             _downloadSeedConfigProvider = downloadSeedConfigProvider;

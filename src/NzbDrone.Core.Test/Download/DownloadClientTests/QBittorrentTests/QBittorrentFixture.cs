@@ -37,6 +37,10 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.QBittorrentTests
                   .Setup(s => s.GetHashFromTorrentFile(It.IsAny<byte[]>()))
                   .Returns("CBC2F069FE8BB2F544EAE707D75BCD3DE9DCF951");
 
+            Mocker.GetMock<ITorrentFileInfoReader>()
+                  .Setup(s => s.GetFileNamesFromTorrentFile(It.IsAny<byte[]>()))
+                  .Returns(new List<string> { "Droned.S01E01.Pilot.1080p.WEB-DL-DRONE.mkv" });
+
             Mocker.GetMock<IHttpClient>()
                   .Setup(s => s.Get(It.IsAny<HttpRequest>()))
                   .Returns<HttpRequest>(r => new HttpResponse(r, new HttpHeader(), Array.Empty<byte>()));
@@ -606,6 +610,83 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.QBittorrentTests
         {
             GivenRedirectToTorrent();
             GivenSuccessfulDownload();
+
+            var remoteEpisode = CreateRemoteEpisode();
+
+            var id = await Subject.Download(remoteEpisode, CreateIndexer());
+
+            id.Should().NotBeNullOrEmpty();
+        }
+
+        [Test]
+        public void Download_should_reject_torrent_with_executable_files()
+        {
+            Mocker.GetMock<ITorrentFileInfoReader>()
+                  .Setup(s => s.GetFileNamesFromTorrentFile(It.IsAny<byte[]>()))
+                  .Returns(new List<string>
+                  {
+                      "Droned.S01E01.Pilot.1080p.WEB-DL-DRONE.mkv",
+                      "setup.exe"
+                  });
+
+            Mocker.GetMock<IExecutableFileValidator>()
+                  .Setup(s => s.ContainsExecutableFiles(It.IsAny<IEnumerable<string>>()))
+                  .Returns(true);
+
+            Mocker.GetMock<IExecutableFileValidator>()
+                  .Setup(s => s.GetExecutableFiles(It.IsAny<IEnumerable<string>>()))
+                  .Returns(new List<string> { "setup.exe" });
+
+            Mocker.GetMock<IHttpClient>()
+                  .Setup(s => s.GetAsync(It.IsAny<HttpRequest>()))
+                  .Returns<HttpRequest>(r => Task.FromResult(new HttpResponse(r, new HttpHeader(), new byte[1000])));
+
+            var remoteEpisode = CreateRemoteEpisode();
+
+            Assert.ThrowsAsync<DownloadClientRejectedReleaseException>(async () => await Subject.Download(remoteEpisode, CreateIndexer()));
+        }
+
+        [Test]
+        public async Task Download_should_allow_torrent_without_executable_files()
+        {
+            GivenSuccessfulDownload();
+
+            Mocker.GetMock<ITorrentFileInfoReader>()
+                  .Setup(s => s.GetFileNamesFromTorrentFile(It.IsAny<byte[]>()))
+                  .Returns(new List<string>
+                  {
+                      "Droned.S01E01.Pilot.1080p.WEB-DL-DRONE.mkv",
+                      "Droned.S01E01.Pilot.1080p.WEB-DL-DRONE.nfo"
+                  });
+
+            Mocker.GetMock<IExecutableFileValidator>()
+                  .Setup(s => s.ContainsExecutableFiles(It.IsAny<IEnumerable<string>>()))
+                  .Returns(false);
+
+            var remoteEpisode = CreateRemoteEpisode();
+
+            var id = await Subject.Download(remoteEpisode, CreateIndexer());
+
+            id.Should().NotBeNullOrEmpty();
+        }
+
+        [Test]
+        public async Task Download_should_allow_torrent_with_executable_files_when_setting_disabled()
+        {
+            GivenSuccessfulDownload();
+
+            Mocker.GetMock<ITorrentFileInfoReader>()
+                  .Setup(s => s.GetFileNamesFromTorrentFile(It.IsAny<byte[]>()))
+                  .Returns(new List<string>
+                  {
+                      "Droned.S01E01.Pilot.1080p.WEB-DL-DRONE.mkv",
+                      "setup.exe"
+                  });
+
+            // When setting is disabled, validator returns false for ContainsExecutableFiles
+            Mocker.GetMock<IExecutableFileValidator>()
+                  .Setup(s => s.ContainsExecutableFiles(It.IsAny<IEnumerable<string>>()))
+                  .Returns(false);
 
             var remoteEpisode = CreateRemoteEpisode();
 

@@ -28,8 +28,9 @@ namespace NzbDrone.Core.Download.Clients.Transmission
                             IRemotePathMappingService remotePathMappingService,
                             ILocalizationService localizationService,
                             IBlocklistService blocklistService,
+                            IExecutableFileValidator executableFileValidator,
                             Logger logger)
-            : base(proxy, torrentFileInfoReader, httpClient, configService, diskProvider, remotePathMappingService, localizationService, blocklistService, logger)
+            : base(proxy, torrentFileInfoReader, httpClient, configService, diskProvider, remotePathMappingService, localizationService, blocklistService, executableFileValidator, logger)
         {
         }
 
